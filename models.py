@@ -1,10 +1,19 @@
 import os
 
-from flask import Flask
+from flask import Flask, redirect, request, session, url_for
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import validates
+from functools import wraps
 
 db = SQLAlchemy()
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if session.get("user_id") is None:
+            return redirect(url_for('login', next=request.url))
+        return f(*args, **kwargs)
+    return decorated_function
 
 class Book(db.Model):
     __tablename__="books"
@@ -27,6 +36,7 @@ class Review(db.Model):
     description = db.Column(db.String)
     book_id = db.Column(db.Integer, db.ForeignKey("books.id"), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+#    time = db.Column(db.Timestamp, nullable=False)
 
 class User(db.Model):
     __tablename__="users"
@@ -34,7 +44,7 @@ class User(db.Model):
     username = db.Column(db.String(20), unique=True, index=True)
     name = db.Column(db.String(50), nullable=False)
     password = db.Column(db.String(20), nullable=False)
-    #authenticated = db.Column(db.Boolean, default=False)
+#    password_confirm = db.Column(db.String(20), nullable=False)
 
 #    def__init__(self, username, password):
 #        self.username = username

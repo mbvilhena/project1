@@ -1,9 +1,45 @@
 body {
-  background-color: blue;
+  background-color: yellow !important;
 }
 
-h1 {
-  font-size: 30px;
-  color: yellow;
-  font: 100% helvetica, sans-serif !important,
+h1, h1 a:active, h1 a:visited, h1 a:hover, h1 a:visited:hover {
+  color: blue !important;
+  text-align: center;
+}
+
+h1 a:hover, h1 a:visited:hover {
+  text-decoration: underline;
+}
+
+.container {
+  margin-top: 50px;
+  align-items: center;
+}
+
+a {
+  color: blue !important;
+}
+
+.form-group {
+  margin-left: auto;
+  margin-right: auto;
+  width: 300px;
+  text-align: center;
+}
+
+.contact-form {
+  margin-top: 50px;
+}
+
+.nav.justify-content-center li a {
+  color: blue !important;
+}
+
+.nav-item:active, .nav-item:hover a {
+  color: blue !important;
+  text-decoration: underline;
+}
+
+.nav-principal {
+  margin-top: 20px;
 }
