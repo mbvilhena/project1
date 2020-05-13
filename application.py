@@ -149,7 +149,7 @@ def logout():
 def dashboard():
     """ List of all books """
     books = db.execute("SELECT * FROM books").fetchall()
-    return render_template("dashboard.html", books=books)
+    return render_template("dashboard.html", books=session["books"])
 
 
 #####################################################
