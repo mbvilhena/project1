@@ -223,3 +223,21 @@ This could be useful for Project1!**
 ## Flask Session:
 
 --- see cs50/src2/notes/ ---
+
+# SQL:
+
+## Data Type:
+- Integer
+- Decimal
+- Serial
+- Varchar
+- Timestamp
+- Boolean
+- Enum...
+
+## Constraints:
+- Not null
+- Unique (username)
+- Primary key (primary reference - ID)
+- Default (define column default value, when not defined)
+- Check (value less than x)...

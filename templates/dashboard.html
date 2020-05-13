@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Books
+{% endblock %}
+
+
+{% block body %}
+
+  <h1>All Books</h1>
+
+  <div class="dashboard">
+    <ul style="list-style-type:none">
+        {% for book in books %}
+              <li>
+                {{book.title}}, from {{book.author}}, {{book.year}} <br>
+              </li>
+        {% endfor %}
+
+    </ul>
+  </div>
+
+{% endblock %}
