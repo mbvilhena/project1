@@ -2,7 +2,7 @@ import os
 import requests
 import json
 
-from flask import Flask, session, render_template, request, jsonify, url_for, redirect
+from flask import Flask, session, render_template, request, jsonify, url_for, redirect, flash
 from flask_session import Session
 from sqlalchemy import create_engine, or_
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -34,7 +34,7 @@ def index():
 @app.route("/register", methods=["GET", "POST"])
 def register():
     """ Register User """
-    sesion.clear()
+    session.clear()
 
     if request.method == "POST":
 
@@ -57,30 +57,16 @@ def register():
 
         hashed_password = generate_password_hash(request.form.get("password"), method="sha256")
 
-        db.execute("INSERT INTO users (username, hash) VALUES (:username, :password)", {"username":request.form.get("username"), "password":hashed_password})
+        db.execute("INSERT INTO users (username, name, password) VALUES (:username, :name, :password)", {"username":request.form.get("username"), "name":request.form.get("name"), "password":hashed_password})
 
         db.commit()
 
         flash("Account created, please login")
 
-        return  redirect("/login")
+        return render_template("login.html")
 
     else:
-        return redirect("/register")
-
-
-#    if request.method == "POST":
-#        user = request.get_json()
-#        hashed_password = generate_password_hash(user["password"], method="sha256")
-#        new_user = User(request.form["username"], request.form["name"], request.form ["password"])
-#        db.session.add(new_user)
-#        db.session.commit()
-#        flash("User sucessfully registered")
-#        return redirect(url_for("login"))
-#    else:
-#        return render_template("register.html")
-#        flash("User not registered")
-
+        return render_template("register.html")
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -94,10 +80,13 @@ def login():
         # Check if username was submitted in form
         if not request.form.get("username"):
             flash("Username missing")
+            return render_template("login.html")
 
         # Check if password was submitted in form
         elif not request.form.get("password"):
             flash("Password missing")
+            return render_template("login.html")
+
 
         # Search the DB for username
 
@@ -109,14 +98,15 @@ def login():
 
         if result == None or not check_password_hash(result[3], request.form.get("password")):
             flash("Invalid username and/or password")
+            return render_template("login.html")
 
         session["id"] = result [0]
         session["username"] = result [1]
 
-        return redirect("/dashboard")
+        return render_template("dashboard.html")
 
     else:
-        return redirect("/login")
+        return render_template("login.html")
 
 
 #        username = request.form.get("username")
@@ -154,7 +144,7 @@ def logout():
     return redirect("/")
 
 
-@app.route("/dashboard")
+@app.route("/dashboard", methods=["GET"])
 @login_required
 def dashboard():
     """ List of all books """

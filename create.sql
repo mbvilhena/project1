@@ -9,5 +9,5 @@ CREATE TABLE users (
   id SERIAL PRIMARY KEY,
   username  VARCHAR UNIQUE,
   name VARCHAR NOT NULL,
-  password CHAR NOT NULL
+  password VARCHAR NOT NULL
 );

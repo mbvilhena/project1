@@ -9,7 +9,8 @@
 
   <h1>All Books</h1>
 
-  <div class="dashboard">
+  <div action="{{ url_for('dashboard') }}" method="GET"
+  >
     <ul style="list-style-type:none">
         {% for book in books %}
               <li>
@@ -18,6 +19,7 @@
         {% endfor %}
 
     </ul>
+    
   </div>
 
 {% endblock %}
