@@ -2,10 +2,9 @@ import os
 
 from flask import Flask, redirect, request, session, url_for
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Sequence
 from sqlalchemy.orm import validates
 from functools import wraps
-from wtforms import Form, BooleanField, StringField, PasswordField, validators
+from wtforms import Form, BooleanField, StringField, PasswordField, validators, SubmitField
 
 db = SQLAlchemy()
 
@@ -55,10 +54,13 @@ class Review(db.Model):
 class User(db.Model):
     """ User """
     __tablename__="users"
-    id = db.Column(db.Integer, Sequence("id_seq"), primary_key=True)
-    username = db.Column(db.String(20), unique=True, index=True)
-    name = db.Column(db.String(50), nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(20), unique=True, nullable=False)
+    name = db.Column(db.String(35), nullable=False)
     password = db.Column(db.String, nullable=False)
+
+    def __repr__(self):
+        return f"User('{self.username}', '{self.name}')"
 
     def is_authenticated(self):
         return True
@@ -81,14 +83,14 @@ class User(db.Model):
 class RegistrationForm(Form):
     """ Registration Form for User """
 
-    username = StringField('username', [validators.Length(min=4, max=25)])
-    name = StringField('name', [validators.Length(min=6, max=35)])
+    username = StringField("username", [validators.DataRequired(), validators.Length(min=4, max=20)])
+    name = StringField("name", [validators.DataRequired(), validators.Length(min=6, max=35)])
 
     # Confirm Password
-    password = PasswordField('password', [
+    password = PasswordField("password", [
         validators.DataRequired(),
-        validators.EqualTo('confirm', message='Passwords must match')])
-    confirm = PasswordField('Repeat Password')
+        validators.EqualTo("confirm", message="Passwords must match")])
+    confirm = PasswordField("Confirm Password")
 
     # Confirm Submission
-    accept_tos = BooleanField('Confirm', [validators.DataRequired()])
+    submit = SubmitField("register")

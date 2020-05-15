@@ -44,31 +44,41 @@ def register():
     form = RegistrationForm(request.form)
 
     if request.method == 'POST' and form.validate():
+        if request.method == "POST":
 
-        user = User(username=form.username.data, name=form.name.data,
-                    password=form.password.data)
+    #        user = User(username=form.username.data, name=form.name.data)
 
-    # Check if username is already taken
-    check_user = db.execute("SELECT * FROM users WHERE username = :username", {"username":request.form.get("username")}).fetchone()
-    if check_user:
-        flash("Username already exists")
-        return redirect("/register")
+            # Check if username is already taken
+            check_user = db.execute("SELECT * FROM users WHERE username = :username",
+            {"username":request.form.get("username")}).fetchone()
 
-    # If username is not taken, create account and redirect to login
-    if not check_user:
+        if check_user:
+            flash("Username already exists")
+            return redirect("/register")
 
-        # Define secure password using werkzeug
-        hashed_password = generate_password_hash(request.form.get("password"), method="sha256")
+        # If username is not taken, create account and redirect to login
+        if not check_user:
 
-        # Insert new user information into the databse
-        db.execute("INSERT INTO users (id, username, name, password) VALUES (DEFAULT, :username, :name, :password)",
-        {"username":request.form.get("username"), "name":request.form.get("name"), "password":hashed_password})
-        db.commit()
+            # Define secure password using werkzeug
+            hashed_password = generate_password_hash(request.form.get("password"), method="sha256")
 
-        flash('Thanks for registering')
-        return redirect(url_for('login'))
+            # Insert new user information into the databse
+            db.execute("INSERT INTO users (username, name, password) VALUES (:username, :name, :password)",
+            {"username":request.form.get("username"), "name":request.form.get("name"), "password":hashed_password})
+
+            new_user = User (username=form.username.data, name=form.name.data)
+
+            # Create a Session
+            session = Session()
+            db.session.add(new_user)
+            db.session.commit()
+
+            flash('Thanks for registering')
+            return redirect(url_for('login'))
 
     return render_template('register.html', form=form)
+
+# Fix error with register page ??? !!!
 
 
 # Set up login function
@@ -103,6 +113,7 @@ def login():
         session["user_id"] = result [0]
         session["user_username"] = result [1]
         session["user_name"] = result [2]
+        session["logged_in"] = True
 
         # Redirect user to dashboard page
         return redirect("/search")
@@ -118,7 +129,8 @@ def login():
 def logout():
     pass
     """ Logout User """
-    session["username"]=False
+    session["user_id"] = None
+    session["logged_in"] = False
     session.clear()
     return render_template("logout.html")
 
