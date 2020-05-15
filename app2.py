@@ -154,3 +154,47 @@ def user():
 
 #if __name__ == "__main__":
 #    main()
+
+
+
+
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    """ Register User """
+    session.clear()
+
+    if request.method == "POST":
+
+        if not request.form.get("username"):
+            flash("Username missing")
+
+        check_user = db.execute("SELECT * FROM users WHERE username = :username", {"username":request.form.get("username")}).fetchone()
+
+        if check_user:
+            flash("Username already exists")
+
+        elif not request.form.get("password"):
+            flash("Password missing")
+
+#        elif not request.form.get("confirmation"):
+#            flash("Confirm password")
+
+#        elif not request.form.get("password") == request.form.get("confirmation"):
+#            flash("Passwords don't match")
+
+        elif not request.form.get("name"):
+            flash("Name missing")
+
+        hashed_password = generate_password_hash(request.form.get("password"), method="sha256")
+
+        db.execute("INSERT INTO users (username, name, password) VALUES (:username, :name, :password)", {"username":request.form.get("username"), "name":request.form.get("name"), "password":hashed_password})
+
+        db.commit()
+
+        flash("Account created, please login")
+
+        return render_template("login.html")
+
+    else:
+        return render_template("register.html")

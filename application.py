@@ -8,6 +8,7 @@ from sqlalchemy import create_engine, or_
 from sqlalchemy.orm import scoped_session, sessionmaker
 from models import *
 from werkzeug.security import generate_password_hash, check_password_hash
+from wtforms import Form, BooleanField, StringField, PasswordField, validators
 
 app = Flask(__name__)
 
@@ -25,50 +26,52 @@ engine = create_engine(os.getenv("DATABASE_URL"))
 db = scoped_session(sessionmaker(bind=engine))
 
 
+# First page, before login
 @app.route("/")
+@login_required
 def index():
+    pass
     """ Index Page """
     return render_template("index.html")
 
 
-@app.route("/register", methods=["GET", "POST"])
+# Set up register function
+# RegistrationForm defined in models.py
+# User defined in models.py
+@app.route('/register', methods=['GET', 'POST'])
 def register():
     """ Register User """
-    session.clear()
+    form = RegistrationForm(request.form)
 
-    if request.method == "POST":
+    if request.method == 'POST' and form.validate():
 
-        if not request.form.get("username"):
-            flash("Username missing")
+        user = User(username=form.username.data, name=form.name.data,
+                    password=form.password.data)
 
-        check_user = db.execute("SELECT * FROM users WHERE username = :username", {"username":request.form.get("username")}).fetchone()
+    # Check if username is already taken
+    check_user = db.execute("SELECT * FROM users WHERE username = :username", {"username":request.form.get("username")}).fetchone()
+    if check_user:
+        flash("Username already exists")
+        return redirect("/register")
 
-        if check_user:
-            flash("Username already exists")
+    # If username is not taken, create account and redirect to login
+    if not check_user:
 
-        elif not request.form.get("password"):
-            flash("Password missing")
-
-#        elif not request.form.get("confirmation"):
-#            flash("Confirm password")
-
-#        elif not request.form.get("password") == request.form.get("confirmation"):
-#            flash("Passwords don't match")
-
+        # Define secure password using werkzeug
         hashed_password = generate_password_hash(request.form.get("password"), method="sha256")
 
-        db.execute("INSERT INTO users (username, name, password) VALUES (:username, :name, :password)", {"username":request.form.get("username"), "name":request.form.get("name"), "password":hashed_password})
-
+        # Insert new user information into the databse
+        db.execute("INSERT INTO users (id, username, name, password) VALUES (DEFAULT, :username, :name, :password)",
+        {"username":request.form.get("username"), "name":request.form.get("name"), "password":hashed_password})
         db.commit()
 
-        flash("Account created, please login")
+        flash('Thanks for registering')
+        return redirect(url_for('login'))
 
-        return render_template("login.html")
-
-    else:
-        return render_template("register.html")
+    return render_template('register.html', form=form)
 
 
+# Set up login function
 @app.route("/login", methods=["GET", "POST"])
 def login():
     """ Login User """
@@ -87,92 +90,92 @@ def login():
             flash("Password missing")
             return render_template("login.html")
 
-
         # Search the DB for username
-
         all_users = db.execute("SELECT * FROM users WHERE username = :username", {"username": username})
-
         result = all_users.fetchone()
 
         # Check if username and password are correct
-
         if result == None or not check_password_hash(result[3], request.form.get("password")):
             flash("Invalid username and/or password")
             return render_template("login.html")
 
-        session["id"] = result [0]
-        session["username"] = result [1]
+        # Remeber user in session
+        session["user_id"] = result [0]
+        session["user_username"] = result [1]
+        session["user_name"] = result [2]
 
-        return render_template("dashboard.html")
+        # Redirect user to dashboard page
+        return redirect("/search")
 
+    # If request.method == "GET"
     else:
         return render_template("login.html")
 
 
-#        username = request.form.get("username")
-#        password = request.form.get("password")
-
-#        if not username in users:
-#            flash("username not found")
-#            return redirect(url_for("login"))
-#        else:
-#            user = users.username
-#        if not password == user["password"]:
-#            flash("Incorrect password")
-#            return redirect(url_for("login"))
-#        else:
-#            session["username"] = ["username"]
-#            flash("Welcome {{username}}")
-#            return redirect(url_for("login"))
-#    return render_template("login.html")
-
-
-#        if request.form["username"] in session ["username"] and request.form["password"] in session["password"]:
-#            username = session["username"]
-#            flash("Welcome {username}")
-#            return render_template("dashboard.html", username=username)
-#        flash("Incorrect password")
-#    return redirect ("/")
-#return render_template("login.html")
-
-
+# Set up Logout function
 @app.route("/logout")
+@login_required
 def logout():
+    pass
     """ Logout User """
-
+    session["username"]=False
     session.clear()
-    return redirect("/")
+    return render_template("logout.html")
 
 
-@app.route("/dashboard", methods=["GET"])
+# Set up dashboard function
+@app.route("/dashboard", methods=["GET","POST"])
 @login_required
 def dashboard():
+    pass
     """ List of all books """
-    books = db.execute("SELECT * FROM books").fetchall()
-    return render_template("dashboard.html", books=session["books"])
+    if request.method == "POST":
+        books = db.execute("SELECT * FROM books").fetchall()
+        books = books.query.all()
+        return render_template("dashboard.html", books=books)
+    else:
+        return redirect("/login")
 
 
-#####################################################
-
-#search books --- AMANHÃ
+# Set search bar
 @app.route("/search", methods=["GET", "POST"])
+@login_required
 def search():
-    if 'username' in session:
+    pass
+    """ Search for books """
+    if "username" in session:
         if request.method == "POST":
             try:
-                book_search = request.form.get("search")
-                if not book_search:
-                    return "please type a book name!"
-
-                books = db.execute("SELECT * FROM books WHERE title LIKE :book_search OR isbn LIKE :book_search OR author LIKE :book_search", {"book_search": '%'+book_search+'%'}).fetchall()
-
-                return render_template("search_result.html", books=books)
-
+                book_search = request.form.get("book_search")
+                book_list = db.execute("SELECT * FROM books WHERE title LIKE :book_search OR isbn LIKE :book_search OR author LIKE :book_search", {"book_search": '%'+book_search+'%'}).fetchall()
+                if not book_list:
+                    flash("please type a book name!")
+                    return render_template("dashboard.html")
+                return render_template("book.html", books=books)
             except ValueError:
-                return render_template("error.html", message="Please type a valid entry")
+                flash("Please type a valid entry")
+                return redirect("/search")
+    return render_template("dashboard.html")
 
-        return render_template("search.html")
-    return render_template("not_logged_in.html")
+### API src4/Currency - book/<book>
+
+@app.route("/user", methods=["GET", "POST"])
+@login_required
+def user_profile():
+    pass
+    """ Profile page """
+    if "username" in session:
+        if request.method == "POST":
+            return render_template("profile.html", name=session["user_name"])
+            name = session["name"]
+    else:
+        return redirect("/login")
+
+
+@app.route("/<string:name>")
+def hello(name):
+    return "Hello, {}!".format(name)
+
 
 
 ### to search books
