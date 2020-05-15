@@ -41,19 +41,25 @@ def index():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     """ Register User """
+    session.clear()
     form = RegistrationForm(request.form)
 
-    if request.method == 'POST' and form.validate():
-        if request.method == "POST":
+    if request.method == "POST" and form.validate():
 
-    #        user = User(username=form.username.data, name=form.name.data)
+        if not request.form.get("username"):
+            flash("Username missing")
+            return render_template("register.html")
 
-            # Check if username is already taken
-            check_user = db.execute("SELECT * FROM users WHERE username = :username",
-            {"username":request.form.get("username")}).fetchone()
+        # Check if username is already taken
+        check_user = db.execute("SELECT * FROM users WHERE username = :username",
+        {"username":request.form.get("username")}).fetchone()
 
         if check_user:
             flash("Username already exists")
+            return render_template("register.html")
+
+        elif not request.form.get("password"):
+            flash("Password missing")
             return redirect("/register")
 
         # If username is not taken, create account and redirect to login
@@ -65,20 +71,13 @@ def register():
             # Insert new user information into the databse
             db.execute("INSERT INTO users (username, name, password) VALUES (:username, :name, :password)",
             {"username":request.form.get("username"), "name":request.form.get("name"), "password":hashed_password})
+            db.commit()
 
-            new_user = User (username=form.username.data, name=form.name.data)
+            # Redirect to login
+            flash("Thanks for registering")
+            return redirect(url_for("login"))
 
-            # Create a Session
-            session = Session()
-            db.session.add(new_user)
-            db.session.commit()
-
-            flash('Thanks for registering')
-            return redirect(url_for('login'))
-
-    return render_template('register.html', form=form)
-
-# Fix error with register page ??? !!!
+    return render_template("register.html", form=form)
 
 
 # Set up login function
@@ -116,7 +115,7 @@ def login():
         session["logged_in"] = True
 
         # Redirect user to dashboard page
-        return redirect("/search")
+        return redirect("/dashboard")
 
     # If request.method == "GET"
     else:
@@ -129,24 +128,37 @@ def login():
 def logout():
     pass
     """ Logout User """
-    session["user_id"] = None
     session["logged_in"] = False
     session.clear()
     return render_template("logout.html")
 
 
-# Set up dashboard function
-@app.route("/dashboard", methods=["GET","POST"])
+# List of all books
+@app.route("/dashboard")
 @login_required
 def dashboard():
     pass
     """ List of all books """
-    if request.method == "POST":
-        books = db.execute("SELECT * FROM books").fetchall()
-        books = books.query.all()
-        return render_template("dashboard.html", books=books)
-    else:
-        return redirect("/login")
+    books = db.execute("SELECT * FROM books").fetchall()
+    return render_template("dashboard.html", books=books)
+
+
+# Book info
+@app.route("/books/<int:book_isbn")
+@login_required
+def abook(book_isbn):
+    """ Book details """
+
+    # Make sure book exists.
+    book = db.execute("SELECT * FROM books WHERE isbn = :isbn", {"isbn": book_isbn}).fetchone()
+    if book is None:
+        flash("There is no such book.")
+        return render_template("dashboard")
+
+    # Get all books.
+    books = db.execute("SELECT title FROM books WHERE book_isbn = :book_isbn",
+                            {"book_isbn": book_isbn}).fetchall()
+    return render_template("book.html", book=book)
 
 
 # Set search bar
@@ -155,40 +167,31 @@ def dashboard():
 def search():
     pass
     """ Search for books """
-    if "username" in session:
-        if request.method == "POST":
-            try:
-                book_search = request.form.get("book_search")
-                book_list = db.execute("SELECT * FROM books WHERE title LIKE :book_search OR isbn LIKE :book_search OR author LIKE :book_search", {"book_search": '%'+book_search+'%'}).fetchall()
-                if not book_list:
-                    flash("please type a book name!")
-                    return render_template("dashboard.html")
-                return render_template("book.html", books=books)
-            except ValueError:
-                flash("Please type a valid entry")
-                return redirect("/search")
-    return render_template("dashboard.html")
+    if request.method == "POST":
+        try:
+            book_search = request.form.get("book_search")
+            book_list = db.execute("SELECT * FROM books WHERE title LIKE :book_search OR isbn LIKE :book_search OR author LIKE :book_search", {"book_search": '%'+book_search+'%'}).fetchall()
+            if not book_list:
+                flash("please type a book name!")
+                return render_template("dashboard.html")
+            return render_template("book.html", books=books)
+        except ValueError:
+            flash("Please type a valid entry")
+            return redirect("/search")
+        return render_template("dashboard.html")
 
 ### API src4/Currency - book/<book>
 
-@app.route("/user", methods=["GET", "POST"])
+@app.route("/user", methods=["GET"])
 @login_required
 def user_profile():
     pass
     """ Profile page """
-    if "username" in session:
-        if request.method == "POST":
-            return render_template("profile.html", name=session["user_name"])
-            name = session["name"]
+    if request.method == "POST":
+        name = session["user_name"]
+        return render_template("profile.html", name=session["user_name"])
     else:
         return redirect("/login")
-
-
-@app.route("/<string:name>")
-def hello(name):
-    return "Hello, {}!".format(name)
-
-
 
 ### to search books
 #@app.route("/book", methods=["POST"])

@@ -8,6 +8,7 @@ from wtforms import Form, BooleanField, StringField, PasswordField, validators, 
 
 db = SQLAlchemy()
 
+
 # Login Required Decorator (Flask’s documentation)
 def login_required(f):
     """ Login Required Decorator """
@@ -17,6 +18,7 @@ def login_required(f):
             return redirect(url_for('login', next=request.url))
         return f(*args, **kwargs)
     return decorated_function
+
 
 # Tables created in create.sql
 # List of all books in books.csv
@@ -39,6 +41,7 @@ class Book(db.Model):
 #        db.session.add(bookreview)
 #        db.session.commit ()
 
+
 # Review class
 class Review(db.Model):
     """ Review """
@@ -49,6 +52,7 @@ class Review(db.Model):
     book_id = db.Column(db.Integer, db.ForeignKey("books.id"), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
 #    time = db.Column(db.Timestamp, nullable=False)
+
 
 # User class
 class User(db.Model):
@@ -78,6 +82,7 @@ class User(db.Model):
     @validates("name")
     def convert_capitalize(self, key, value):
         return value.capitalize()
+
 
 # Form Validation with WTForms (Flask’s documentation)
 class RegistrationForm(Form):

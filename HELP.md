@@ -241,3 +241,11 @@ This could be useful for Project1!**
 - Primary key (primary reference - ID)
 - Default (define column default value, when not defined)
 - Check (value less than x)...
+
+
+
+# src4>classes4.py
+
+Criar sequência para id de userns, books e reviews
+__init__ em todas as classes?
+relationships between users and reviews
