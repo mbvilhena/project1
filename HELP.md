@@ -249,3 +249,11 @@ This could be useful for Project1!**
 Criar sequência para id de userns, books e reviews
 __init__ em todas as classes?
 relationships between users and reviews
+
+
+WORK ON:
+- FLASH MESSAGES NOT WORKING IN REGISTER
+- USER DOESN'T KEEP LOGGED IN
+- BOOK LIST NOT APPEARING
+- PROFILE PAGE REDIRECTING TO LOGIN
+- SEARCH BAR NOT WORKING
