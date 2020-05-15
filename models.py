@@ -35,12 +35,6 @@ class Book(db.Model):
     year = db.Column(db.Integer, nullable=False)
 #    review = db.relationship("Review", backref="book", lazy=True)
 
-#    def add_review(self, id, rating, description):
-#        """ Add review to Book """
-#        bookreview = Review(id=id, rating=rating, description=description, book_id=self.id)
-#        db.session.add(bookreview)
-#        db.session.commit ()
-
 
 # Review class
 class Review(db.Model):
@@ -62,6 +56,12 @@ class User(db.Model):
     username = db.Column(db.String(20), unique=True, nullable=False)
     name = db.Column(db.String(35), nullable=False)
     password = db.Column(db.String, nullable=False)
+
+#    def add_review(self, id, rating, description):
+#        """ Add review to Book """
+#        bookreview = Review(id=id, rating=rating, description=description, book_id=self.id)
+#        db.session.add(bookreview)
+#        db.session.commit ()
 
     def __repr__(self):
         return f"User('{self.username}', '{self.name}')"

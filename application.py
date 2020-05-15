@@ -114,8 +114,12 @@ def login():
         session["user_name"] = result [2]
         session["logged_in"] = True
 
+        user_username = session["user_username"]
+        user_name = session["user_name"]
+
+        flash("Welcome {{user_name}}")
         # Redirect user to dashboard page
-        return redirect("/dashboard")
+        return render_template("profile.html")
 
     # If request.method == "GET"
     else:
@@ -188,8 +192,8 @@ def user_profile():
     pass
     """ Profile page """
     if request.method == "POST":
-        name = session["user_name"]
-        return render_template("profile.html", name=session["user_name"])
+        user_name = session["user_name"]
+        return render_template("profile.html", user_name=session["user_name"])
     else:
         return redirect("/login")
 
