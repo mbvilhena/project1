@@ -1,9 +1,8 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Books
+    Search
 {% endblock %}
-
 
 {% block body %}
 
@@ -34,7 +33,7 @@
         <button class="btn btn-outline-dark mx-auto d-block" type="submit">Search</button>
     </form>
 
-  <div action="{{ url_for('dashboard') }}" method="POST">
+  <div action="{{ url_for('search') }}" method="POST">
     <ul style="list-style-type:none">
         {% for book in books %}
               <li>

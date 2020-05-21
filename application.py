@@ -119,7 +119,7 @@ def login():
 
         flash("Welcome {{user_name}}")
         # Redirect user to dashboard page
-        return render_template("profile.html")
+        return render_template("search.html", user_name=session["user_name"])
 
     # If request.method == "GET"
     else:
@@ -138,30 +138,28 @@ def logout():
 
 
 # List of all books
-@app.route("/dashboard")
+@app.route("/books")
 @login_required
-def dashboard():
+def books():
     pass
     """ List of all books """
     books = db.execute("SELECT * FROM books").fetchall()
-    return render_template("dashboard.html", books=books)
+    return render_template("books.html", books=books)
 
 
 # Book info
-@app.route("/books/<int:book_isbn")
+@app.route("/books/<int:book_id>")
 @login_required
-def abook(book_isbn):
+def book(book_id):
+    pass
     """ Book details """
 
     # Make sure book exists.
-    book = db.execute("SELECT * FROM books WHERE isbn = :isbn", {"isbn": book_isbn}).fetchone()
+    book = db.execute("SELECT * FROM books WHERE id = :id", {"id": book_id}).fetchone()
     if book is None:
         flash("There is no such book.")
-        return render_template("dashboard")
+        return render_template("books")
 
-    # Get all books.
-    books = db.execute("SELECT title FROM books WHERE book_isbn = :book_isbn",
-                            {"book_isbn": book_isbn}).fetchall()
     return render_template("book.html", book=book)
 
 
@@ -177,59 +175,23 @@ def search():
             book_list = db.execute("SELECT * FROM books WHERE title LIKE :book_search OR isbn LIKE :book_search OR author LIKE :book_search", {"book_search": '%'+book_search+'%'}).fetchall()
             if not book_list:
                 flash("please type a book name!")
-                return render_template("dashboard.html")
-            return render_template("book.html", books=books)
+                return render_template("books.html")
+            return render_template("book.html", book=book)
         except ValueError:
             flash("Please type a valid entry")
             return redirect("/search")
-        return render_template("dashboard.html")
+        return render_template("search.html")
 
 ### API src4/Currency - book/<book>
 
+# Set profile page
 @app.route("/user", methods=["GET"])
 @login_required
 def user_profile():
     pass
     """ Profile page """
-    if request.method == "POST":
+    if request.method == "GET":
         user_name = session["user_name"]
         return render_template("profile.html", user_name=session["user_name"])
     else:
         return redirect("/login")
-
-### to search books
-#@app.route("/book", methods=["POST"])
-#def book():
-#    """Book a flight."""
-
-#    # Get form information.
-#    name = request.form.get("name")
-#    try:
-#        flight_id = int(request.form.get("flight_id"))
-#    except ValueError:
-#        return render_template("error.html", message="Invalid flight number.")
-
-    # Make sure flight exists.
-#    if db.execute("SELECT * FROM flights WHERE id = :id", {"id": flight_id}).rowcount == 0:
-#        return render_template("error.html", message="No such flight with that id.")
-#    db.execute("INSERT INTO passengers (name, flight_id) VALUES (:name, :flight_id)",
-#            {"name": name, "flight_id": flight_id})
-#    db.commit()
-#    return render_template("success.html")
-
-
-### Details about single book
-
-#@app.route("/flights/<int:flight_id>")
-#def flight(flight_id):
-#    """List details about a single flight."""
-
-    # Make sure flight exists.
-#    flight = db.execute("SELECT * FROM flights WHERE id = :id", {"id": flight_id}).fetchone()
-#    if flight is None:
-#        return render_template("error.html", message="No such flight.")
-
-    # Get all passengers.
-#    passengers = db.execute("SELECT name FROM passengers WHERE flight_id = :flight_id",
-#                            {"flight_id": flight_id}).fetchall()
-#    return render_template("flight.html", flight=flight, passengers=passengers)

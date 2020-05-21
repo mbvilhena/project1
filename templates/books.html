@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Book
+    Books
 {% endblock %}
 
 {% block body %}
@@ -23,13 +23,16 @@
       </ul>
     </div>
 
-    <h1>Book Details</h1>
+    <h1>All Books</h1>
 
     <ul>
-        <li>ISBN: {{ book.isbn }}</li>
-        <li>Title: {{ book.title }}</li>
-        <li>Author: {{ book.author }}</li>
-        <li>Year: {{ book.year}}</li>
+        {% for book in books %}
+            <li>
+                <a href="{{ url_for('book', book_id=book.id) }}">
+                    {{ book.title }}, from {{ book.author }}, {{ book.year }} ({{ book.isbn }})
+                </a>
+            </li>
+        {% endfor %}
     </ul>
 
 {% endblock %}
