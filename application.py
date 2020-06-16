@@ -38,7 +38,7 @@ def index():
 # Set up register function
 # RegistrationForm defined in models.py
 # User defined in models.py
-@app.route('/register', methods=['GET', 'POST'])
+@app.route('/register', methods=["GET", "POST"])
 def register():
     """ Register User """
     session.clear()
@@ -117,7 +117,7 @@ def login():
         user_username = session["user_username"]
         user_name = session["user_name"]
 
-        flash("Welcome {{user_name}}")
+        flash("Welcome!")
         # Redirect user to dashboard page
         return render_template("search.html", user_name=session["user_name"])
 
@@ -164,25 +164,42 @@ def book(book_id):
 
 
 # Set search bar
-@app.route("/search", methods=["GET", "POST"])
+@app.route("/search", methods=["GET"])
 @login_required
 def search():
     pass
     """ Search for books """
-    if request.method == "POST":
-        try:
-            book_search = request.form.get("book_search")
-            book_list = db.execute("SELECT * FROM books WHERE title LIKE :book_search OR isbn LIKE :book_search OR author LIKE :book_search", {"book_search": '%'+book_search+'%'}).fetchall()
-            if not book_list:
-                flash("please type a book name!")
-                return render_template("books.html")
-            return render_template("book.html", book=book)
-        except ValueError:
-            flash("Please type a valid entry")
-            return redirect("/search")
+
+    if not request.args.get("book"):
         return render_template("search.html")
 
-### API src4/Currency - book/<book>
+    book_search = "%" + request.args.get("book") + "%"
+    book_search = book_search.title()
+    book_list = db.execute("SELECT * FROM books WHERE title LIKE :book_search OR isbn LIKE :book_search OR author LIKE :book_search", {"book_search":book_search})
+
+    if book_list.rowcount == 0:
+        flash("No books matching that description.")
+        return render_template("search.html")
+
+    books = book_list.fetchall()
+    return render_template("booklist.html", books=books)
+
+
+#### PERFECT SEARCH METHOD !!! - BOOKLIST.HTML ALSO
+
+#    if request.method == "POST":
+#        try:
+#            book_search = request.form.get("book_search")
+#            book_list = db.execute("SELECT * FROM books WHERE title LIKE :book_search OR isbn LIKE :book_search OR author LIKE :book_search", {"book_search": '%'+book_search+'%'}).fetchall()
+#            if not book_list:
+#                flash("please type a book name!")
+#                return render_template("books.html")
+#            return render_template("book.html", book=book)
+#        except ValueError:
+#            flash("Please type a valid entry")
+#            return redirect("/search")
+#        return render_template("search.html")
+
 
 # Set profile page
 @app.route("/user", methods=["GET"])
@@ -195,3 +212,6 @@ def user_profile():
         return render_template("profile.html", user_name=session["user_name"])
     else:
         return redirect("/login")
+
+
+### API src4/Currency - book/<book>

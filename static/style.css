@@ -46,5 +46,13 @@ a {
 
 li {
   list-style-type: none;
-  padding: 50px;
+  padding: 10px;
+}
+
+.booklist {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-items: baseline;
 }

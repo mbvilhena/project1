@@ -1,0 +1,49 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Book List
+{% endblock %}
+
+{% block body %}
+
+    <div class="nav-principal">
+        <ul class="nav justify-content-center">
+        <li class="nav-item">
+          <a class="nav-link active" href="/">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('search') }}">Search</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/user">User</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/logout">Logout</a>
+        </li>
+      </ul>
+    </div>
+
+    <h1>Book List</h1>
+
+    <div class="container booklist" method="GET">
+
+        {% for book in books %}
+
+              <div class="card border-primary mb-3" style="width: 12rem">
+                  <div class="card-body">
+                      <img src="http://covers.openlibrary.org/b/isbn/{{book['isbn']}}-M.jpg" width="100%">
+                      <h4 class="card-title">{{ book.isbn }}</h4>
+                      <h6 class="card-text">{{ book.title }}</h6>
+                      <h6 class="card-text">{{ book.author }}</h6>
+                      <h6 class="card-text">{{ book.year }}</h6>
+                  </div>
+                  <div class="card-footer">
+                      <a href="/books/{{book['id']}}" class="card-link">Go to book page</a>
+                  </div>
+              </div>
+
+        {% endfor %}
+
+    </div>
+
+{% endblock %}
