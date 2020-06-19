@@ -147,22 +147,6 @@ def books():
     return render_template("books.html", books=books)
 
 
-# Book info
-@app.route("/books/<int:book_id>")
-@login_required
-def book(book_id):
-    pass
-    """ Book details """
-
-    # Make sure book exists.
-    book = db.execute("SELECT * FROM books WHERE id = :id", {"id": book_id}).fetchone()
-    if book is None:
-        flash("There is no such book.")
-        return render_template("books")
-
-    return render_template("book.html", book=book)
-
-
 # Set search bar
 @app.route("/search", methods=["GET"])
 @login_required
@@ -185,22 +169,6 @@ def search():
     return render_template("booklist.html", books=books)
 
 
-#### PERFECT SEARCH METHOD !!! - BOOKLIST.HTML ALSO
-
-#    if request.method == "POST":
-#        try:
-#            book_search = request.form.get("book_search")
-#            book_list = db.execute("SELECT * FROM books WHERE title LIKE :book_search OR isbn LIKE :book_search OR author LIKE :book_search", {"book_search": '%'+book_search+'%'}).fetchall()
-#            if not book_list:
-#                flash("please type a book name!")
-#                return render_template("books.html")
-#            return render_template("book.html", book=book)
-#        except ValueError:
-#            flash("Please type a valid entry")
-#            return redirect("/search")
-#        return render_template("search.html")
-
-
 # Set profile page
 @app.route("/user", methods=["GET"])
 @login_required
@@ -214,8 +182,32 @@ def user_profile():
         return redirect("/login")
 
 
+# Book info - before API - TO CHANGE
+@app.route("/books/<int:book_id>")
+@login_required
+def book(book_id):
+    pass
+    """ Book details """
+
+    # Make sure book exists.
+    book = db.execute("SELECT * FROM books WHERE id = :id", {"id": book_id}).fetchone()
+    if book is None:
+        flash("There is no such book.")
+        return render_template("books")
+
+    return render_template("book.html", book=book)
+
+
 ### API src4/Currency - book/<book>
 
+@app.route("/book/<isbn>", methods=["GET","POST"])
+@login_required
+    def book():
 
-res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": "KEY", "isbns": "9781632168146"})
-print(res.json())
+        res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": "KEY", "isbns": "9781632168146"})
+        print(res.json())
+
+
+@app.route("/api/<isbn>", methods=['GET'])
+@login_required
+    def api_call(isbn):
