@@ -200,14 +200,14 @@ def book(book_id):
 
 ### API src4/Currency - book/<book>
 
-@app.route("/book/<isbn>", methods=["GET","POST"])
-@login_required
-    def book():
+#@app.route("/book/<isbn>", methods=["GET","POST"])
+#@login_required
+#    def book():
 
-        res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": "KEY", "isbns": "9781632168146"})
-        print(res.json())
+#        res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": "KEY", "isbns": "9781632168146"})
+#        print(res.json())
 
 
-@app.route("/api/<isbn>", methods=['GET'])
-@login_required
-    def api_call(isbn):
+#@app.route("/api/<isbn>", methods=['GET'])
+#@login_required
+#    def api_call(isbn):
