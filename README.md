@@ -2,9 +2,12 @@
 
 ## Start:
 cd desktop/cs50/project1
+cd documents/github/project1
 export FLASK_APP="application.py"
 export FLASK_DEBUG=1
 export DATABASE_URL="postgres://qqnufqcpwpshpw:c60e8f61830b48d35b02f34333507c90c005165dfb4e3fe8a81809177acae8af@ec2-79-125-26-232.eu-west-1.compute.amazonaws.com:5432/dc2tgav9tm02ds"
+
+psql postgres://qqnufqcpwpshpw:c60e8f61830b48d35b02f34333507c90c005165dfb4e3fe8a81809177acae8af@ec2-79-125-26-232.eu-west-1.compute.amazonaws.com:5432/dc2tgav9tm02ds
 
 # Database
 
