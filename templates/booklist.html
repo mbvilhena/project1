@@ -6,44 +6,49 @@
 
 {% block body %}
 
-    <div class="nav-principal">
-        <ul class="nav justify-content-center">
-        <li class="nav-item">
-          <a class="nav-link active" href="/">Home</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('search') }}">Search</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="/user">User</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="/logout">Logout</a>
-        </li>
-      </ul>
-    </div>
+      <div class="nav-principal">
+          <ul class="nav justify-content-center">
+          <li class="nav-item">
+            <a class="nav-link active" href="/">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('search') }}">Search</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/logout">Logout</a>
+          </li>
+        </ul>
+      </div>
 
-    <h1>Book List</h1>
+      <h1>Search for a book</h1>
 
-    <div class="container booklist" method="GET">
+      <form action="/search" method="GET">
+          <div class="form-group">
+              <input type="text" class="form-control" name="book" autofocus aria-describedby="bookHelp" placeholder="ISBN, Title or Author">
+              <small id="bookHelp" class="form-text text-muted">Example: Tolkien, Lord, or Rings</small>
+          </div>
+          <button class="btn btn-outline-dark mx-auto d-block" type="submit">Search</button>
+      </form>
 
-        {% for book in books %}
+      <div class="container results_booklist" method="GET">
 
-              <div class="card border-primary mb-3" style="width: 12rem">
-                  <div class="card-body">
-                      <img src="http://covers.openlibrary.org/b/isbn/{{book['isbn']}}-M.jpg" width="100%">
-                      <h4 class="card-title">{{ book.isbn }}</h4>
-                      <h6 class="card-text">{{ book.title }}</h6>
-                      <h6 class="card-text">{{ book.author }}</h6>
-                      <h6 class="card-text">{{ book.year }}</h6>
-                  </div>
-                  <div class="card-footer">
-                      <a href="/book/{{book['isbn']}}" class="card-link">Go to book page</a>
-                  </div>
-              </div>
+          {% for book in books %}
 
-        {% endfor %}
+                <div class="card border-dark bg-light mb-3" style="width: 12rem">
+                    <div class="card-body">
+                        <img class="card-img-top" src="http://covers.openlibrary.org/b/isbn/{{book['isbn']}}-M.jpg" alt="Card image" width="100%">
+                        <h4 class="card-title">{{ book.isbn }}</h4>
+                        <h6 class="card-text">{{ book.title }}</h6>
+                        <h6 class="card-text">{{ book.author }}</h6>
+                        <h6 class="card-text">{{ book.year }}</h6>
+                    </div>
+                    <div class="card-footer">
+                        <a href="/book/{{book['isbn']}}" class="card-link">Go to book page</a>
+                    </div>
+                </div>
 
-    </div>
+          {% endfor %}
+
+      </div>
 
 {% endblock %}

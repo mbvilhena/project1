@@ -15,9 +15,6 @@
           <a class="nav-link" href="{{ url_for('search') }}">Search</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="/user">User</a>
-        </li>
-        <li class="nav-item">
           <a class="nav-link" href="/logout">Logout</a>
         </li>
       </ul>
@@ -28,7 +25,7 @@
     <form action="/search" method="GET">
         <div class="form-group">
             <input type="text" class="form-control" name="book" autofocus aria-describedby="bookHelp" placeholder="ISBN, Title or Author">
-            <small id="bookHelp" class="form-text text-muted">Example: 0375508325, Cosmos or Carl Sagan</small>
+            <small id="bookHelp" class="form-text text-muted">Example: Tolkien, Lord or Rings</small>
         </div>
         <button class="btn btn-outline-dark mx-auto d-block" type="submit">Search</button>
     </form>

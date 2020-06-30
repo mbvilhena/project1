@@ -1,9 +1,9 @@
 body {
-  background-color: yellow !important;
+  background-color: #F5F5F5 !important;
 }
 
 h1, h1 a:active, h1 a:visited, h1 a:hover, h1 a:visited:hover {
-  color: blue !important;
+  color: #282828 !important;
   text-align: center;
 }
 
@@ -11,13 +11,27 @@ h1 a:hover, h1 a:visited:hover {
   text-decoration: underline;
 }
 
+h2, h2 a:active, h2 a:visited, h2 a:hover, h2 a:visited:hover {
+  color: #282828 !important;
+  text-align: center;
+}
+
+h2 a:hover, h2 a:visited:hover {
+  text-decoration: underline;
+  color: #F0E50E !important;
+}
+
+h4 {
+  text-align: center;
+}
+
 .container {
-  margin-top: 50px;
+  margin-top: 20px;
   align-items: center;
 }
 
 a {
-  color: blue !important;
+  color: #282828 !important;
 }
 
 .form-group {
@@ -32,16 +46,17 @@ a {
 }
 
 .nav.justify-content-center li a {
-  color: blue !important;
+  color: #282828 !important;
 }
 
 .nav-item:active, .nav-item:hover a {
-  color: blue !important;
+  color: #282828 !important;
   text-decoration: underline;
 }
 
 .nav-principal {
-  margin-top: 20px;
+  padding: 5px;
+  margin-bottom: 20px;
 }
 
 li {
@@ -49,10 +64,115 @@ li {
   padding: 10px;
 }
 
-.booklist {
+.results_booklist {
+    margin-top: 50px;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: space-around;
     align-items: baseline;
+}
+
+.card-title {
+  margin-top: 10px;
+}
+.register-form, .login-form {
+    margin-top: 25px;
+}
+
+.headerlog {
+  margin-top: 50px !important;
+}
+
+.books_name a, a:active, a:visited, a:hover, a:visited:hover {
+  color: #282828;
+}
+
+.books_name a:hover, a:visited:hover {
+  background-color: #F0E50E !important;
+  text-decoration: none !important;
+}
+
+.booklistfull {
+  margin-top: 50px;
+  text-align: center;
+  column-count: 2;
+}
+
+.image01 {
+  margin-top: 50px;
+  width: 50%;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.book-info {
+  margin-left: 10%;
+  width: 45%;
+  float: left;
+  margin-top: 50px;
+}
+
+.book-review {
+  width: 42%;
+  text-align: center;
+  width: 300px;
+  float: right;
+  margin-top: 50px;
+  margin-right: 10%;
+}
+
+.clearfix {
+  clear: both;
+}
+
+.user-reviews {
+  margin-top: 50px;
+  margin-bottom: 100px;
+}
+
+.img-container {
+  position: relative;
+  display: inline-block;
+  opacity: 0.9;
+  }
+
+ .img-container img {
+   display: block;
+   margin-left: auto;
+   margin-right: auto;
+   filter: saturate(0.8);
+ }
+
+ .img-container h2 {
+   position: absolute;
+   top: 20%;
+   left: 0;
+   right: 0;
+   transform: translate(0, -50%);
+   text-align: center;
+   visibility: hidden;
+   font-weight: bold;
+   color: #000;
+   font-size: 30px !important;
+   letter-spacing: 1.2px;
+   }
+
+ h2 span {
+   background-color: #F0E50E;
+ }
+
+ .img-container:hover img{
+   opacity: 0.5;
+   filter: saturate(0.8);
+   }
+
+ .img-container:hover h2 {
+   visibility: visible;
+ }
+
+.alert {
+  position: relative;
+
 }

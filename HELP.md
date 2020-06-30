@@ -212,11 +212,11 @@ def hello():
         return render_template("hello.html", name=name)
 
 
-**I am defining a new variable called 'name', and saying 'name' shoud be equal to = and I am gonna take that request that the user made, acess the form 'request.form' and get whatever part of the form was called 'name'.
+**I am defining a new variable called 'name', and saying 'name' should be equal to = and I am gonna take that request that the user made, acess the form 'request.form' and get whatever part of the form was called 'name'.
 
 I am going to render a template called 'hello.html' and passing that 'name' as a variable, getting the 'name' from the form that the user just filled out.
 
-If request.method = GET, meaning if i type in the route instead of submiting the form, the page returns an error.
+If request.method = GET, meaning if i type in the route instead of submitting the form, the page returns an error.
 
 This could be useful for Project1!**
 

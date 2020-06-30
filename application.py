@@ -119,7 +119,7 @@ def login():
 
         flash("Welcome!")
         # Redirect user to dashboard page
-        return render_template("search.html", user_name=session["user_name"])
+        return render_template("index.html", user_name=session["user_name"])
 
     # If request.method == "GET"
     else:
@@ -169,146 +169,79 @@ def search():
     return render_template("booklist.html", books=books)
 
 
-# Set profile page
-@app.route("/user", methods=["GET"])
-@login_required
-def user_profile():
-    pass
-    """ Profile page """
-    if request.method == "GET":
-        user_name = session["user_name"]
-        return render_template("profile.html", user_name=session["user_name"])
-    else:
-        return redirect("/login")
-
-
-# Book info - before API - TO CHANGE
-#@app.route("/books/<int:book_id>")
-#@login_required
-#def book(book_id):
-#    pass
-#    """ Book details """
-
-    # Make sure book exists.
-#    book = db.execute("SELECT * FROM books WHERE id = :id", {"id": book_id}).fetchone()
-#    if book is None:
-#        flash("There is no such book.")
-#        return render_template("books")
-#
-#    return render_template("book.html", book=book)
-
-
-###
-
-@app.route("/book/<isbn>", methods=["GET","POST"])
+@app.route("/book/<isbn>", methods=["GET", "POST"])
 @login_required
 def book(isbn):
-    """ Save user review and load same page with reviews updated."""
+    """ Each book's page with Goodreads Reviews and Rating Submission """
 
-    if request.method == "POST":
+    if request.method == "GET":
 
-        # Save current user info
-        currentUser = session["user_id"]
+        row = db.execute("SELECT isbn, title, author, year FROM books WHERE isbn = :isbn", {"isbn": isbn})
 
-        # Fetch form data
+        book_info = row.fetchall()
+
+        # Goodreads reviews
+        key = os.getenv("GOODREADS_KEY")
+
+        # API call: https://www.goodreads.com/api/index#book.review_counts
+        review_query = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": key, "isbns": isbn})
+
+        if review_query.status_code == 422 or review_query.status_code == 404:
+            raise Exception("ERROR: API request unsuccessful.")
+
+        review_stats = review_query.json()["books"][0]
+
+        book_info.append(review_stats)
+
+        # Fetch user reviews
+        row = db.execute("SELECT id FROM books WHERE isbn = :isbn", {"isbn": isbn})
+        book_id = row.fetchone()[0]
+
+        # Fetch book reviews
+        rows = db.execute("SELECT username, description, rating FROM users JOIN reviews ON users.id = reviews.user_id \
+                    WHERE book_id = :book_id", {"book_id": book_id})
+
+        reviews = rows.fetchall()
+
+        return render_template("book.html", book_info=book_info, reviews=reviews)
+
+    else:
+        # if POST method
+        current_user = session["user_id"]
+
+        # Fetch data from the form in book.html
         rating = request.form.get("rating")
         description = request.form.get("description")
 
-        # Search book_id by ISBN
-        row = db.execute("SELECT id FROM books WHERE isbn = :isbn",
-                        {"isbn": isbn})
+        row = db.execute("SELECT id FROM books WHERE isbn = :isbn", {"isbn": isbn})
+        book_id = row.fetchone()[0]
 
-        # Save id into variable
-        bookId = row.fetchone() # (id,)
-        bookId = bookId[0]
+        check_row = db.execute("SELECT * FROM reviews WHERE user_id = :user_id AND book_id = :book_id",
+                               {"user_id": current_user, "book_id": book_id})
 
-        # Check for user submission (ONLY 1 review/user allowed per book)
-        row2 = db.execute("SELECT * FROM reviews WHERE user_id = :user_id AND book_id = :book_id",
-                    {"user_id": currentUser,
-                     "book_id": bookId})
-
-        # A review already exists
-        if row2.rowcount == 1:
-
-            flash('You already submitted a review for this book', 'warning')
+        if check_row.rowcount == 1:
+            flash("You already submitted a description for this book", "warning")
             return redirect("/book/" + isbn)
 
-        # Convert to save into DB
+        # Save rating and review
         rating = int(rating)
 
-        db.execute("INSERT INTO reviews (user_id, book_id, description, rating) VALUES \
-                    (:user_id, :book_id, :description, :rating)",
-                    {"user_id": currentUser,
-                    "book_id": bookId,
-                    "description": description,
-                    "rating": rating})
-
-        # Commit transactions to DB and close the connection
+        db.execute("INSERT INTO reviews (user_id, book_id, description, rating) VALUES (:user_id, :book_id, :description, :rating)",
+                                 {"user_id": current_user, "book_id": book_id, "description": description, "rating": rating})
         db.commit()
 
-        flash('Review submitted!', 'info')
+        flash("Your review has been submitted.", "info")
 
         return redirect("/book/" + isbn)
 
-    # Take the book ISBN and redirect to his page (GET)
-    else:
 
-        row = db.execute("SELECT isbn, title, author, year FROM books WHERE \
-                        isbn = :isbn",
-                        {"isbn": isbn})
-
-        bookInfo = row.fetchall()
-
-        """ GOODREADS reviews """
-
-        # Read API key from env variable
-        key = os.getenv("GOODREADS_KEY")
-
-        # Query the api with key and ISBN as parameters
-        query = requests.get("https://www.goodreads.com/book/review_counts.json", # rever este link em https://www.goodreads.com/api/index
-                params={"key": key, "isbn": isbn})
-
-        # Convert the response to JSON
-        response = query.json()
-
-        # "Clean" the JSON before passing it to the bookInfo list
-        response = response['books'][0]
-
-        # Append it as the second element on the list. [1]
-        bookInfo.append(response)
-
-        """ Users reviews """
-
-         # Search book_id by ISBN
-        row = db.execute("SELECT id FROM books WHERE isbn = :isbn",
-                        {"isbn": isbn})
-
-        # Save id into variable
-        book = row.fetchone() # (id,)
-        book = book[0]
-
-        # Fetch book reviews
-        # Date formatting (https://www.postgresql.org/docs/9.1/functions-formatting.html)
-        results = db.execute("SELECT users.username, comment, rating, \
-                            to_char(time, 'DD Mon YY - HH24:MI:SS') as time \
-                            FROM users \
-                            INNER JOIN reviews \
-                            ON users.id = reviews.user_id \
-                            WHERE book_id = :book \
-                            ORDER BY time",
-                            {"book": book})
-
-        reviews = results.fetchall()
-
-        return render_template("book.html", bookInfo=bookInfo, reviews=reviews)
-
-
-@app.route("/api/<isbn>", methods=['GET'])
+@app.route("/api/<isbn>", methods=["GET"])
 @login_required
 def api_call(isbn):
+    """ API Access """
 
     # COUNT returns rowcount
-    # SUM returns sum selected cells' values
+    # SUM returns selection sum
     # INNER JOIN associates books with reviews tables
 
     row = db.execute("SELECT title, author, year, isbn, \
@@ -321,18 +254,13 @@ def api_call(isbn):
                     GROUP BY title, author, year, isbn",
                     {"isbn": isbn})
 
-    # Error checking
     if row.rowcount != 1:
         return jsonify({"Error": "Invalid book ISBN"}), 422
 
-    # Fetch result from RowProxy
     tmp = row.fetchone()
 
-    # Convert to dict
     result = dict(tmp.items())
 
-    # Round Avg Score to 2 decimal. This returns a string which does not meet the requirement.
-    # https://floating-point-gui.de/languages/python/
     result['average_score'] = float('%.2f'%(result['average_score']))
 
     return jsonify(result)

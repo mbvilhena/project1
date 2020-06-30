@@ -1,10 +1,10 @@
 {% extends "layout.html" %}
 
-{% block title %}
-    {{bookInfo[0]['title']}}
+{% block heading %}
+  {{bookInfo[0]['title']}}
 {% endblock %}
 
-{% block content %}
+{% block body %}
 
     <div class="nav-principal">
         <ul class="nav justify-content-center">
@@ -15,84 +15,63 @@
           <a class="nav-link" href="{{ url_for('search') }}">Search</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="/user">User</a>
-        </li>
-        <li class="nav-item">
           <a class="nav-link" href="/logout">Logout</a>
         </li>
       </ul>
     </div>
 
-    <div class="row book-container">
-        <div class="col-sm-4">
-            <img src="http://covers.openlibrary.org/b/isbn/{{bookInfo[0]['isbn']}}-M.jpg" width="130px">
-        </div>
-        <div class="col-sm-4">
-            <h1>{{bookInfo[0]['title']}}</h1>
-            <h5>Author: {{bookInfo[0]['author']}}</h5>
-            <h5>Published: {{bookInfo[0]['year']}}</h5>
-            <h5>ISBN-10: {{bookInfo[0]['isbn']}}</h5>
-        </div>
+            <div class="book-info">
+                <img src="http://covers.openlibrary.org/b/isbn/{{book_info[0].isbn}}-L.jpg">
+                <p><br></p>
+                <h5>{{ book_info[0].title }}, {{ book_info[0].year }}</h5>
+                <h5> Author(s):{{ book_info[0].author }}</h5>
+                <small>(ISBN {{ book_info[0].isbn }})</small>
+                <p><br></p>
+                <p>No. of Ratings: {{ book_info[1]['work_ratings_count'] }}</p>
+                <p>Average Rating: {{ book_info[1]['average_rating'] }}</p>
+            </div>
 
-        <!--GOODREADS REVIEWS -->
-        <div class="col-sm-4">
-            <img class="mb-3" src="../static/goodreads.jpg" alt="Goodreads" width="200" height="45">
-            <h5>Nº of Ratings: {{bookInfo[1]['work_ratings_count']}}</h5>
-            <h5>Average Rating: {{bookInfo[1]['average_rating']}}</h5>
-            <h5>
-                <a href="https://www.goodreads.com/search?q={{bookInfo[0]['title']}}">Goodreads page</a>
-            </h5>
-        </div>
-    </div>
-    <div class="dropdown-divider"></div>
-
-    <h4 class="alert alert-warning">Users Reviews</h4>
-    <h5>Make your own review!</h5>
-
-    <div>
-        <!-- REVIEW FORM -->
-        <form method="POST" class="form-border">
-            <div class="form-row">
-                <div class="form-group col-sm">
-                    <label for="rating">Rate this book</label>
-                    <select id="rating" name="rating" class="form-control" required>
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option selected value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                    </select>
-                </div>
-                <div class="form-group col-sm-6">
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text">Say something</span>
+            <div class="book-review">
+                <form method="POST" class="form-border">
+                    <div class="form-group">
+                        <h4 label for="rating">Rate this book</h4>
+                        <br>
+                        <div class="form-group">
+                            <select id="rating" name="rating" class="form-control" required>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option selected value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
                         </div>
-                        <textarea name="description" id="description" class="form-control" rows="1" required></textarea>
                     </div>
-                </div>
-                <div class="form-group col-sm">
-                    <button class="btn btn-success" type="submit">Submit</button>
-                </div>
-            </div>
-        </form>
+                    <div class="rating-input">
+                        <textarea name="review" id="review" class="form-control" rows="10" placeholder="Write your review here" required></textarea>
+                    </div>
+                    <br>
+                        <button class="btn btn-outline-dark mx-auto d-block" type="submit">Submit</button>
+                </form>
 
-        <!-- REVIEW LIST -->
-        <div id="userReviews">
-            <h2></h2>
-            {% for review in reviews %}
-            <div class="list-group">
-                <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
-                    <div class="d-flex w-100 justify-content-between">
-                        <h6 class="mb-1" style="color:burlywood">{{review['username']}} said...</h6>
-                        <small>{{review['time']}}</small>
+                <div class="user-reviews">
+                    <h4>Reviews from Other Users</h4>
+                    {% for review in reviews %}
+                    <div class="list-group">
+                        <div>
+                            <br>
+                            <h6 style="font-weight:bold">{{review['username']}} rated...</h6>
+                        </div>
+                        <p>{{review['review']}}</p>
+                        <p>Rated: {{review['rating']}}</p>
                     </div>
-                    <p class="mb-1">{{review['description']}}</p>
-                    <small>Rated: {{review['rating']}}</small>
-                </a>
-                <div class="dropdown-divider"></div>
+                    {% endfor %}
+
+                </div>
+
             </div>
-            {% endfor %}
-        </div>
-    </div>
+
+    <span class="clearfix"></span>
+
+
+
 {% endblock %}

@@ -1,15 +1,42 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Books by Review
+  Index
 {% endblock %}
 
 {% block body %}
 
+  <div class="nav-principal">
+      <ul class="nav justify-content-center">
+      <li class="nav-item">
+        <a class="nav-link active" href="/">Home</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('search') }}">Search</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/logout">Logout</a>
+      </li>
+    </ul>
+  </div>
+
   <div class="title">
-    <h1>
-      <a href="/books">Know more about books.</a>
+
+    <!-- <h1>
+      <a>Know more about books</a>
     </h1>
+    <a href="/books">
+      <img class="image01" src="static/joyce-mccown-CoykYnIunUg-unsplash.jpg" alt="01">
+    </a>
+  </div> -->
+
+  <div>
+    <span class="img-container">
+      <a href="/books">
+          <img src="static/joyce-mccown-CoykYnIunUg-unsplash.jpg" alt="click" width="50%">
+      </a>
+      <h2><span class="hightligh-text">Know more about books</span></h2>
+    </span>
   </div>
 
 {% endblock %}
