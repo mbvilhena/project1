@@ -244,23 +244,17 @@ def api_call(isbn):
     # SUM returns selection sum
     # INNER JOIN associates books with reviews tables
 
-    row = db.execute("SELECT title, author, year, isbn, \
-                    COUNT(reviews.id) as review_count, \
-                    AVG(reviews.rating) as average_score \
-                    FROM books \
-                    INNER JOIN reviews \
-                    ON books.id = reviews.book_id \
-                    WHERE isbn = :isbn \
-                    GROUP BY title, author, year, isbn",
-                    {"isbn": isbn})
+    row = db.execute("SELECT title, author, year FROM books WHERE isbn = :isbn", {"isbn": isbn})
+    result = dict(row.first())
+    result["isbn"] = isbn
 
-    if row.rowcount != 1:
-        return jsonify({"Error": "Invalid book ISBN"}), 422
+    review_counts_result = get_review_counts(isbn)
 
-    tmp = row.fetchone()
+    result["average_score"] = review_counts_result["average_rating"]
+    result["review_count"] = review_counts_result["number_ratings"]
 
-    result = dict(tmp.items())
+    print(result)
 
-    result['average_score'] = float('%.2f'%(result['average_score']))
+    results_json = json.dumps(result, )
 
-    return jsonify(result)
+    return results_json

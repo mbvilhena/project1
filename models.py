@@ -1,4 +1,4 @@
-import os
+import os, requests, urllib.parse
 
 from flask import Flask, redirect, request, session, url_for
 from flask_sqlalchemy import SQLAlchemy
@@ -91,3 +91,23 @@ class RegistrationForm(Form):
 
     # Confirm Submission
     submit = SubmitField("register")
+
+# book.review_counts function of the Goodreads API
+def get_review_counts(isbn):
+    developer_key = 'CoB12efyXvsy5aQaD9BLw'
+    base_url = "https://www.goodreads.com/book/review_counts.json?"
+    query_parameters = {"isbns": isbn, "key": developer_key}
+    full_url = base_url + urllib.parse.urlencode(query_parameters)
+
+    json_data = requests.get(full_url).json()
+
+    average_rating = json_data['books'][0]['average_rating']
+    number_ratings = json_data['books'][0]['work_ratings_count']
+    if not average_rating:
+        average_rating = "Not found"
+    if not number_ratings:
+        number_ratings = "Not found"
+
+    review_counts_result = {'average_rating': average_rating, 'number_ratings': number_ratings}
+
+    return review_counts_result
