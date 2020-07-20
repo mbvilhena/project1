@@ -240,10 +240,6 @@ def book(isbn):
 def api_call(isbn):
     """ API Access """
 
-    # COUNT returns rowcount
-    # SUM returns selection sum
-    # INNER JOIN associates books with reviews tables
-
     row = db.execute("SELECT title, author, year FROM books WHERE isbn = :isbn", {"isbn": isbn})
     result = dict(row.first())
     result["isbn"] = isbn
