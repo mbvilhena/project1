@@ -1,4 +1,4 @@
-web: gunicorn application:app
+web: gunicorn application:app --preload
 
 init: python models.py
 init: python create.py
