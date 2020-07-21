@@ -1,4 +1,5 @@
 web: gunicorn application:app
 
-init: python db_create.py
-upgrade: python db_upgrade.py
+init: python models.py
+init: python create.py
+init: python import.py
